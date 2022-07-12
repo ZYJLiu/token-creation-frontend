@@ -77,26 +77,8 @@ export const AppBar: FC = (props) => {
         {/* Wallet & Settings */}
         <div className="navbar-end">
           <Link href="/">
-            <a className="mr-8">Create Token</a>
+            <a className="mr-8">Create Promo</a>
           </Link>
-          <Link href="/nft">
-            <a className="mr-8">Create NFT</a>
-          </Link>
-          <Link href="/update">
-            <a className="mr-4">Update Metadata</a>
-          </Link>
-          <Link href="/SolanaPay">
-            <a className="mr-4">SolanaPay Checkout</a>
-          </Link>
-          <Link href="/mint">
-            <a className="mr-4">Mint NFT</a>
-          </Link>
-          {/* <Link href="/uploader">
-            <a className="mr-8">Upload Metadata</a>
-          </Link> */}
-          {/* <Link href="/metadata">
-            <a className="mr-4">Token Metadata</a>
-          </Link> */}
           <div className="dropdown">
             <div tabIndex={0} className="btn btn-square btn-ghost text-right">
               <svg
