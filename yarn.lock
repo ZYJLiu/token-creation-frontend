@@ -1694,10 +1694,19 @@
     "bn.js" "^5.2.0"
     "debug" "^4.3.3"
 
-"@metaplex-foundation/beet@^0.2.0", "@metaplex-foundation/beet@>=0.1.0":
+"@metaplex-foundation/beet@^0.2.0":
   "integrity" "sha512-H570hkJxmx/FxET1OggPPLkPL7psYQa71rNI9NJjYRM8WXdrEvmI/IRIEUW2KR6RqwWWN3FvlRHnKoQUV/lQtA=="
   "resolved" "https://registry.npmjs.org/@metaplex-foundation/beet/-/beet-0.2.0.tgz"
   "version" "0.2.0"
+  dependencies:
+    "ansicolors" "^0.3.2"
+    "bn.js" "^5.2.0"
+    "debug" "^4.3.3"
+
+"@metaplex-foundation/beet@^0.4.0", "@metaplex-foundation/beet@>=0.1.0":
+  "integrity" "sha512-2OAKJnLatCc3mBXNL0QmWVQKAWK2C7XDfepgL0p/9+8oSx4bmRAFHFqptl1A/C0U5O3dxGwKfmKluW161OVGcA=="
+  "resolved" "https://registry.npmjs.org/@metaplex-foundation/beet/-/beet-0.4.0.tgz"
+  "version" "0.4.0"
   dependencies:
     "ansicolors" "^0.3.2"
     "bn.js" "^5.2.0"
