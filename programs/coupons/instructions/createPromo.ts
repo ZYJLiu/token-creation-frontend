@@ -55,6 +55,9 @@ export type CreatePromoInstructionAccounts = {
   promo: web3.PublicKey
   promoMint: web3.PublicKey
   user: web3.PublicKey
+  systemProgram?: web3.PublicKey
+  rent?: web3.PublicKey
+  tokenProgram?: web3.PublicKey
   metadata: web3.PublicKey
   tokenMetadataProgram: web3.PublicKey
 }
@@ -75,67 +78,63 @@ export const createPromoInstructionDiscriminator = [
  */
 export function createCreatePromoInstruction(
   accounts: CreatePromoInstructionAccounts,
-  args: CreatePromoInstructionArgs
+  args: CreatePromoInstructionArgs,
+  programId = new web3.PublicKey('DVniVd3L9KdZuGXte2dtbWrB7QRCiUpJFgu29uAaM1fR')
 ) {
-  const { merchant, promo, promoMint, user, metadata, tokenMetadataProgram } =
-    accounts
-
   const [data] = createPromoStruct.serialize({
     instructionDiscriminator: createPromoInstructionDiscriminator,
     ...args,
   })
   const keys: web3.AccountMeta[] = [
     {
-      pubkey: merchant,
+      pubkey: accounts.merchant,
       isWritable: true,
       isSigner: false,
     },
     {
-      pubkey: promo,
+      pubkey: accounts.promo,
       isWritable: true,
       isSigner: false,
     },
     {
-      pubkey: promoMint,
+      pubkey: accounts.promoMint,
       isWritable: true,
       isSigner: false,
     },
     {
-      pubkey: user,
+      pubkey: accounts.user,
       isWritable: true,
       isSigner: true,
     },
     {
-      pubkey: web3.SystemProgram.programId,
+      pubkey: accounts.systemProgram ?? web3.SystemProgram.programId,
       isWritable: false,
       isSigner: false,
     },
     {
-      pubkey: web3.SYSVAR_RENT_PUBKEY,
+      pubkey: accounts.rent ?? web3.SYSVAR_RENT_PUBKEY,
       isWritable: false,
       isSigner: false,
     },
     {
-      pubkey: splToken.TOKEN_PROGRAM_ID,
+      pubkey: accounts.tokenProgram ?? splToken.TOKEN_PROGRAM_ID,
       isWritable: false,
       isSigner: false,
     },
     {
-      pubkey: metadata,
+      pubkey: accounts.metadata,
       isWritable: true,
       isSigner: false,
     },
     {
-      pubkey: tokenMetadataProgram,
+      pubkey: accounts.tokenMetadataProgram,
       isWritable: false,
       isSigner: false,
     },
   ]
 
   const ix = new web3.TransactionInstruction({
-    programId: new web3.PublicKey(
-      'ERUzTgkzMzXq738vac9e4sLGcPNSZAKQ9vuUuH87bY7b'
-    ),
+    programId,
     keys,
     data,
   })

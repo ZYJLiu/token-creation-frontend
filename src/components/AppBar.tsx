@@ -79,6 +79,9 @@ export const AppBar: FC = (props) => {
           <Link href="/">
             <a className="mr-8">Create Promo</a>
           </Link>
+          <Link href="/display">
+            <a className="mr-8">Display Promo</a>
+          </Link>
           <div className="dropdown">
             <div tabIndex={0} className="btn btn-square btn-ghost text-right">
               <svg

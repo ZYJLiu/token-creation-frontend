@@ -1,258 +1,104 @@
 import { FC, useState, Fragment, useEffect, useRef, useCallback } from "react";
-import { Listbox, Transition } from "@headlessui/react";
-import { CheckIcon, SelectorIcon } from "@heroicons/react/solid";
-import { WebBundlr } from "@bundlr-network/client";
-import { LAMPORTS_PER_SOL, Transaction, PublicKey } from "@solana/web3.js";
+import { Transaction, PublicKey } from "@solana/web3.js";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
+import {
+  Metaplex,
+  walletAdapterIdentity,
+  bundlrStorage,
+  MetaplexFile,
+  useMetaplexFileFromBrowser,
+  findMetadataPda,
+} from "@metaplex-foundation/js";
 
-import { notify } from "../utils/notifications";
-
-import { findMetadataPda } from "@metaplex-foundation/js";
-
-import { createCreateMerchantInstruction } from "../../programs/coupons/instructions/createMerchant";
 import { createCreatePromoInstruction } from "../../programs/coupons/instructions/createPromo";
 import { Merchant } from "../../programs/coupons/accounts/Merchant";
 import idl from "../../programs/coupons/token_rewards_coupons.json";
 
+import { notify } from "../utils/notifications";
 import BN from "bn.js";
 
-const bundlers = [
-  { id: 1, network: "mainnet-beta", name: "https://node1.bundlr.network" },
-  { id: 2, network: "devnet", name: "https://devnet.bundlr.network" },
-];
-
-const classNames = (...classes) => {
-  return classes.filter(Boolean).join(" ");
-};
-
-export const UploadMetadata: FC = ({}) => {
+export const CreatePromo: FC = () => {
   const wallet = useWallet();
   const { publicKey, sendTransaction } = useWallet();
   const { connection } = useConnection();
 
-  const [provider, setProvider] = useState(null);
-  const [address, setAddress] = useState(null);
-  const [bundlr, setBundlr] = useState(null);
-  const [selected, setSelected] = useState(null);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [imageFile, setImageFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [metadata, setMetadata] = useState(null);
   const [metadataUrl, setMetadataUrl] = useState(null);
-
-  const [merchantInfo, setMerchantInfo] = useState(null);
 
   const [tokenName, setTokenName] = useState("");
   const [symbol, setSymbol] = useState("");
+  const [description, setDescription] = useState("");
   const [transaction, setTransaction] = useState("");
 
-  const selectedMounted = useRef(false);
-  const imageMounted = useRef(false);
   const urlMounted = useRef(false);
 
-  useEffect(() => {
-    if (wallet && wallet.connected) {
-      async function connectProvider() {
-        console.log(wallet);
-        await wallet.connect();
-        const provider = wallet.wallet.adapter;
-        await provider.connect();
-        setProvider(provider);
-      }
-      connectProvider();
-    }
-  }, [wallet]);
+  const programId = new PublicKey(idl.metadata.address);
+  const TOKEN_METADATA_PROGRAM_ID = new PublicKey(
+    "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+  );
 
-  useEffect(() => {
-    if (selectedMounted.current && selected != null && wallet.connected) {
-      initializeBundlr();
-    } else {
-      selectedMounted.current = true;
-    }
-    // if (selected != null) initializeBundlr();
-  }, [selected]);
+  const metaplex = new Metaplex(connection).use(
+    bundlrStorage({
+      address: "https://devnet.bundlr.network",
+      providerUrl: "https://api.devnet.solana.com",
+      timeout: 60000,
+    })
+  );
 
-  useEffect(() => {
-    if (imageMounted.current && imageUrl != null) {
-      uploadMetadata();
-    } else {
-      imageMounted.current = true;
-    }
-  }, [imageUrl]);
+  if (wallet) {
+    metaplex.use(walletAdapterIdentity(wallet));
+  }
 
-  useEffect(() => {
-    if (urlMounted.current && metadataUrl != null) {
-      onClick({
-        metadata: metadataUrl,
-        symbol: symbol,
-        tokenName: tokenName,
-      });
-    } else {
-      urlMounted.current = true;
-    }
-  }, [metadataUrl]);
-
-  const initializeBundlr = async () => {
-    // initialise a bundlr client
-    let bundler;
-    if (selected.name === "https://devnet.bundlr.network") {
-      bundler = new WebBundlr(`${selected.name}`, "solana", provider, {
-        providerUrl: "https://api.devnet.solana.com",
-      });
-    } else {
-      bundler = new WebBundlr(`${selected.name}`, "solana", provider);
-    }
-
-    console.log(bundler);
-
-    try {
-      // Check for valid bundlr node
-      await bundler.utils.getBundlerAddress("solana");
-    } catch (err) {
-      notify({ type: "error", message: `${err}` });
-      return;
-    }
-    try {
-      await bundler.ready();
-    } catch (err) {
-      notify({ type: "error", message: `${err}` });
-      return;
-    } //@ts-ignore
-    if (!bundler.address) {
-      notify({
-        type: "error",
-        message: "Unexpected error: bundlr address not found",
-      });
-    }
-    notify({
-      type: "success",
-      message: `Connected to ${selected.network}`,
-    });
-    setAddress(bundler?.address);
-    setBundlr(bundler);
-  };
-
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    let reader = new FileReader();
-    if (file) {
-      setSelectedImage(file.name);
-      reader.onload = function () {
-        if (reader.result) {
-          setImageFile(Buffer.from(reader.result as ArrayBuffer));
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    }
-  };
-
-  const uploadImage = async () => {
-    const price = await bundlr.utils.getPrice("solana", imageFile.length);
-    let amount = bundlr.utils.unitConverter(price);
-    amount = amount.toNumber();
-
-    console.log(amount);
-
-    const loadedBalance = await bundlr.getLoadedBalance();
-    let balance = bundlr.utils.unitConverter(loadedBalance.toNumber());
-    balance = balance.toNumber();
-    console.log(balance);
-
-    if (balance < amount) {
-      // Fund your account with the difference
-      await bundlr.fund(amount * LAMPORTS_PER_SOL * 2);
-    }
-
-    const imageResult = await bundlr.uploader.upload(imageFile, [
-      { name: "Content-Type", value: "image/png" },
-    ]);
-
-    const arweaveImageUrl = `https://arweave.net/${imageResult.data.id}?ext=png`;
-
-    if (arweaveImageUrl) {
-      setImageUrl(arweaveImageUrl);
-    }
-  };
-
-  const uploadMetadata = async () => {
-    const data = {
-      name: null,
-      symbol: null,
-      description: null,
-      image: imageUrl,
-    };
-
-    const buffer = Buffer.from(JSON.stringify(data, null, 2));
-
-    const price = await bundlr.utils.getPrice("solana", buffer.length);
-    let amount = bundlr.utils.unitConverter(price);
-    amount = amount.toNumber();
-    console.log(amount);
-
-    const loadedBalance = await bundlr.getLoadedBalance();
-    let balance = bundlr.utils.unitConverter(loadedBalance.toNumber());
-    balance = balance.toNumber();
-    console.log(balance);
-
-    if (balance < amount) {
-      // Fund your account with the difference
-      await bundlr.fund(amount * LAMPORTS_PER_SOL);
-    }
-
-    const metadataResult = await bundlr.uploader.upload(buffer, [
-      { name: "Content-Type", value: "application/json" },
-    ]);
-    const arweaveMetadataUrl = `https://arweave.net/${metadataResult.data.id}`;
-
-    setMetadataUrl(arweaveMetadataUrl);
-  };
-
-  const findMerchant = async () => {
-    const programId = new PublicKey(idl.metadata.address);
-
-    const [merchant, merchantBump] = await PublicKey.findProgramAddress(
-      [Buffer.from("MERCHANT"), publicKey.toBuffer()],
-      programId
+  // upload image
+  const handleImage = async (event) => {
+    const file: MetaplexFile = await useMetaplexFileFromBrowser(
+      event.target.files[0]
     );
 
-    try {
-      const merchantInfo = await Merchant.fromAccountAddress(
-        connection,
-        merchant
-      );
-      setMerchantInfo(merchantInfo);
-    } catch (error: unknown) {}
+    const imageUrl = await metaplex.storage().upload(file);
+    setImageUrl(imageUrl);
+    console.log(imageUrl);
   };
 
-  const onClick = useCallback(
+  // upload metadata
+  const uploadMetadata = async () => {
+    const { uri, metadata } = await metaplex.nfts().uploadMetadata({
+      name: tokenName,
+      symbol: symbol,
+      description: description,
+      image: imageUrl,
+    });
+    setMetadataUrl(uri);
+    console.log(uri);
+  };
+
+  // build and send transaction
+  const createPromo = useCallback(
     async (form) => {
-      const programId = new PublicKey(idl.metadata.address);
       if (!publicKey) {
         console.log("error", "Wallet not connected!");
         return;
       }
 
-      await findMerchant();
-
+      // merchant account PDA
       const [merchant, merchantBump] = await PublicKey.findProgramAddress(
         [Buffer.from("MERCHANT"), publicKey.toBuffer()],
         programId
       );
 
+      // get merchant account data
       const merchantInfo = await Merchant.fromAccountAddress(
         connection,
         merchant
       );
 
-      const count = new BN(merchantInfo.promoCount);
-
       const [promo, promoBump] = await PublicKey.findProgramAddress(
-        [merchant.toBuffer(), count.toArrayLike(Buffer, "be", 8)],
+        [
+          merchant.toBuffer(),
+          new BN(merchantInfo.promoCount).toArrayLike(Buffer, "be", 8),
+        ],
         programId
       );
-
-      console.log(promo.toString());
 
       const [promoMint, promoMintBump] = await PublicKey.findProgramAddress(
         [Buffer.from("MINT"), promo.toBuffer()],
@@ -260,20 +106,6 @@ export const UploadMetadata: FC = ({}) => {
       );
 
       const metadataPDA = await findMetadataPda(promoMint);
-
-      const TOKEN_METADATA_PROGRAM_ID = new PublicKey(
-        "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
-      );
-
-      const createMerchant = createCreateMerchantInstruction(
-        {
-          merchant: merchant,
-          user: publicKey,
-        },
-        {
-          name: form.tokenName.toString(),
-        }
-      );
 
       const createPromo = new Transaction().add(
         createCreatePromoInstruction(
@@ -296,19 +128,14 @@ export const UploadMetadata: FC = ({}) => {
       const transactionSignature = await sendTransaction(
         createPromo,
         connection
-        // {
-        //   signers: [mintKeypair],
-        // }
       );
-
-      // await connection.confirmTransaction(transactionSignature, "confirmed");
 
       const url = `https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`;
       console.log(url);
 
       notify({
         type: "success",
-        message: `Token Created`,
+        message: `Promo Created`,
       });
 
       setTransaction(url);
@@ -316,93 +143,44 @@ export const UploadMetadata: FC = ({}) => {
     [publicKey, connection, sendTransaction]
   );
 
+  // send transaction once metadata uplaoded
+  useEffect(() => {
+    if (urlMounted.current && metadataUrl != null) {
+      createPromo({
+        metadata: metadataUrl,
+        symbol: symbol,
+        tokenName: tokenName,
+      });
+    } else {
+      urlMounted.current = true;
+    }
+  }, [metadataUrl]);
+
+  // check wallet connection
+  useEffect(() => {
+    if (wallet && wallet.connected) {
+      async function connectProvider() {
+        console.log("Connected Wallet", wallet);
+        await wallet.connect();
+        const provider = wallet.wallet.adapter;
+        await provider.connect();
+      }
+      connectProvider();
+    }
+  }, [wallet]);
+
   return (
     <div className="bg-white shadow overflow-hidden sm:rounded-lg">
       <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
         <div className="py-4 sm:py-5 sm:grid sm:grid-cols-1 sm:gap-4 sm:px-6">
           <div className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-1">
-            <div className="px-4 py-5 bg-white space-y-6 sm:p-6">
-              <Listbox value={selected} onChange={setSelected}>
-                {() => (
-                  <>
-                    <div className="mt-1 relative">
-                      <Listbox.Button className="bg-white relative w-full border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                        <span className="block truncate">
-                          {!selected ? "Select Network" : selected.network}
-                        </span>
-                        <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                          <SelectorIcon
-                            className="h-5 w-5 text-gray-400"
-                            aria-hidden="true"
-                          />
-                        </span>
-                      </Listbox.Button>
-
-                      <Transition
-                        as={Fragment}
-                        leave="transition ease-in duration-100"
-                        leaveFrom="opacity-100"
-                        leaveTo="opacity-0"
-                      >
-                        <Listbox.Options className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
-                          {bundlers.map((bundler) => (
-                            <Listbox.Option
-                              key={bundler.id}
-                              className={({ active }) =>
-                                classNames(
-                                  active
-                                    ? "text-white bg-purple-500"
-                                    : "text-gray-900",
-                                  "cursor-default select-none relative py-2 pl-3 pr-9"
-                                )
-                              }
-                              value={bundler}
-                            >
-                              {({ selected, active }) => (
-                                <>
-                                  <span
-                                    className={classNames(
-                                      selected
-                                        ? "font-semibold"
-                                        : "font-normal",
-                                      "block truncate"
-                                    )}
-                                  >
-                                    {bundler.network}
-                                  </span>
-
-                                  {selected ? (
-                                    <span
-                                      className={classNames(
-                                        active
-                                          ? "text-white"
-                                          : "text-purple-500",
-                                        "absolute inset-y-0 right-0 flex items-center pr-4"
-                                      )}
-                                    >
-                                      <CheckIcon
-                                        className="h-5 w-5"
-                                        aria-hidden="true"
-                                      />
-                                    </span>
-                                  ) : null}
-                                </>
-                              )}
-                            </Listbox.Option>
-                          ))}
-                        </Listbox.Options>
-                      </Transition>
-                    </div>
-                  </>
-                )}
-              </Listbox>
-            </div>
+            <div className="px-4 py-5 bg-white space-y-6 sm:p-6"></div>
           </div>
         </div>
 
         <div className="py-4 sm:py-5 sm:grid sm:grid-cols-1 sm:gap-4 sm:px-6">
           <div className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-1">
-            {!metadataUrl ? (
+            {!transaction ? (
               <div className="mt-1 sm:mt-0 sm:col-span-1">
                 <div className="max-w-lg flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
                   <div className="space-y-1 text-center">
@@ -425,19 +203,25 @@ export const UploadMetadata: FC = ({}) => {
                         htmlFor="image-upload"
                         className="relative cursor-pointer bg-white rounded-md font-medium text-purple-500 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
                       >
-                        <span>Upload Promo Image</span>
-                        <input
-                          id="image-upload"
-                          name="image-upload"
-                          type="file"
-                          className="sr-only"
-                          onChange={handleImageChange}
-                        />
+                        {!imageUrl ? (
+                          <div>
+                            <span>Upload Promo Image</span>
+                            <input
+                              id="image-upload"
+                              name="image-upload"
+                              type="file"
+                              className="sr-only"
+                              onChange={handleImage}
+                            />
+                          </div>
+                        ) : (
+                          <div>
+                            <span>Image Uploaded</span>
+                            <img src={imageUrl} />
+                          </div>
+                        )}
                       </label>
                     </div>
-                    {!selectedImage ? null : (
-                      <p className="text-sm text-gray-500">{selectedImage}</p>
-                    )}
                   </div>
                 </div>
               </div>
@@ -468,9 +252,15 @@ export const UploadMetadata: FC = ({}) => {
                 placeholder="Symbol"
                 onChange={(e) => setSymbol(e.target.value)}
               />
+              <input
+                type="text"
+                className="form-control block mb-2 w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                placeholder="Description"
+                onChange={(e) => setDescription(e.target.value)}
+              />
               <button
                 className="px-8 m-2 btn animate-pulse bg-gradient-to-r from-[#9945FF] to-[#14F195] hover:from-pink-500 hover:to-yellow-500 ..."
-                onClick={async () => uploadImage()}
+                onClick={async () => uploadMetadata()}
               >
                 <span>Create Token</span>
               </button>

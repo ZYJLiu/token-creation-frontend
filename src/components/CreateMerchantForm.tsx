@@ -1,36 +1,20 @@
-import { FC, useState, Fragment, useEffect, useRef, useCallback } from "react";
-import { Listbox, Transition } from "@headlessui/react";
-import { CheckIcon, SelectorIcon } from "@heroicons/react/solid";
-import { WebBundlr } from "@bundlr-network/client";
-import { LAMPORTS_PER_SOL, Transaction, PublicKey } from "@solana/web3.js";
+import { FC, useState, useEffect, useCallback } from "react";
+import { Transaction, PublicKey } from "@solana/web3.js";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 
 import { notify } from "../utils/notifications";
 
-import { findMetadataPda } from "@metaplex-foundation/js";
-
 import { createCreateMerchantInstruction } from "../../programs/coupons/instructions/createMerchant";
-import { createCreatePromoInstruction } from "../../programs/coupons/instructions/createPromo";
-import { Merchant } from "../../programs/coupons/accounts/Merchant";
 import idl from "../../programs/coupons/token_rewards_coupons.json";
 
-import BN from "bn.js";
+interface Props {
+  setMerchant: (string) => void;
+}
 
-const bundlers = [
-  { id: 1, network: "mainnet-beta", name: "https://node1.bundlr.network" },
-  { id: 2, network: "devnet", name: "https://devnet.bundlr.network" },
-];
-
-const classNames = (...classes) => {
-  return classes.filter(Boolean).join(" ");
-};
-
-export const CreateMerchant: FC = ({}) => {
+export const CreateMerchant: FC<Props> = ({ setMerchant }) => {
   const wallet = useWallet();
   const { publicKey, sendTransaction } = useWallet();
   const { connection } = useConnection();
-
-  const [provider, setProvider] = useState(null);
 
   const [name, setName] = useState("");
 
@@ -41,7 +25,6 @@ export const CreateMerchant: FC = ({}) => {
         await wallet.connect();
         const provider = wallet.wallet.adapter;
         await provider.connect();
-        setProvider(provider);
       }
       connectProvider();
     }
@@ -78,6 +61,7 @@ export const CreateMerchant: FC = ({}) => {
 
     const url = `https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`;
     console.log(url);
+    setMerchant(merchant);
 
     notify({
       type: "success",

@@ -34,6 +34,7 @@ export const mintNftStruct = new beet.BeetArgsStruct<{
 export type MintNftInstructionAccounts = {
   promo: web3.PublicKey
   promoMint: web3.PublicKey
+  tokenProgram?: web3.PublicKey
   customerNft: web3.PublicKey
   user: web3.PublicKey
 }
@@ -50,44 +51,43 @@ export const mintNftInstructionDiscriminator = [
  * @category MintNft
  * @category generated
  */
-export function createMintNftInstruction(accounts: MintNftInstructionAccounts) {
-  const { promo, promoMint, customerNft, user } = accounts
-
+export function createMintNftInstruction(
+  accounts: MintNftInstructionAccounts,
+  programId = new web3.PublicKey('DVniVd3L9KdZuGXte2dtbWrB7QRCiUpJFgu29uAaM1fR')
+) {
   const [data] = mintNftStruct.serialize({
     instructionDiscriminator: mintNftInstructionDiscriminator,
   })
   const keys: web3.AccountMeta[] = [
     {
-      pubkey: promo,
+      pubkey: accounts.promo,
       isWritable: false,
       isSigner: false,
     },
     {
-      pubkey: promoMint,
+      pubkey: accounts.promoMint,
       isWritable: true,
       isSigner: false,
     },
     {
-      pubkey: splToken.TOKEN_PROGRAM_ID,
+      pubkey: accounts.tokenProgram ?? splToken.TOKEN_PROGRAM_ID,
       isWritable: false,
       isSigner: false,
     },
     {
-      pubkey: customerNft,
+      pubkey: accounts.customerNft,
       isWritable: true,
       isSigner: false,
     },
     {
-      pubkey: user,
+      pubkey: accounts.user,
       isWritable: true,
       isSigner: true,
     },
   ]
 
   const ix = new web3.TransactionInstruction({
-    programId: new web3.PublicKey(
-      'ERUzTgkzMzXq738vac9e4sLGcPNSZAKQ9vuUuH87bY7b'
-    ),
+    programId,
     keys,
     data,
   })
