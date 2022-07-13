@@ -1,0 +1,11 @@
+.gridNFT {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 0.5em;
+}
+
+.table {
+  text-align: left;
+  border: 1px solid black;
+  color: #0f172a;
+}

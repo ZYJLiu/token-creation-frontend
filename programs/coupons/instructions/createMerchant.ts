@@ -44,6 +44,8 @@ export const createMerchantStruct = new beet.FixableBeetArgsStruct<
 export type CreateMerchantInstructionAccounts = {
   merchant: web3.PublicKey
   user: web3.PublicKey
+  systemProgram?: web3.PublicKey
+  rent?: web3.PublicKey
 }
 
 export const createMerchantInstructionDiscriminator = [
@@ -62,41 +64,38 @@ export const createMerchantInstructionDiscriminator = [
  */
 export function createCreateMerchantInstruction(
   accounts: CreateMerchantInstructionAccounts,
-  args: CreateMerchantInstructionArgs
+  args: CreateMerchantInstructionArgs,
+  programId = new web3.PublicKey('DVniVd3L9KdZuGXte2dtbWrB7QRCiUpJFgu29uAaM1fR')
 ) {
-  const { merchant, user } = accounts
-
   const [data] = createMerchantStruct.serialize({
     instructionDiscriminator: createMerchantInstructionDiscriminator,
     ...args,
   })
   const keys: web3.AccountMeta[] = [
     {
-      pubkey: merchant,
+      pubkey: accounts.merchant,
       isWritable: true,
       isSigner: false,
     },
     {
-      pubkey: user,
+      pubkey: accounts.user,
       isWritable: true,
       isSigner: true,
     },
     {
-      pubkey: web3.SystemProgram.programId,
+      pubkey: accounts.systemProgram ?? web3.SystemProgram.programId,
       isWritable: false,
       isSigner: false,
     },
     {
-      pubkey: web3.SYSVAR_RENT_PUBKEY,
+      pubkey: accounts.rent ?? web3.SYSVAR_RENT_PUBKEY,
       isWritable: false,
       isSigner: false,
     },
   ]
 
   const ix = new web3.TransactionInstruction({
-    programId: new web3.PublicKey(
-      'ERUzTgkzMzXq738vac9e4sLGcPNSZAKQ9vuUuH87bY7b'
-    ),
+    programId,
     keys,
     data,
   })

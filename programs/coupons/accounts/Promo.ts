@@ -15,6 +15,7 @@ import * as beet from '@metaplex-foundation/beet'
  * @category generated
  */
 export type PromoArgs = {
+  user: web3.PublicKey
   mint: web3.PublicKey
   bump: number
 }
@@ -28,13 +29,17 @@ export const promoDiscriminator = [56, 91, 197, 41, 229, 168, 221, 54]
  * @category generated
  */
 export class Promo implements PromoArgs {
-  private constructor(readonly mint: web3.PublicKey, readonly bump: number) {}
+  private constructor(
+    readonly user: web3.PublicKey,
+    readonly mint: web3.PublicKey,
+    readonly bump: number
+  ) {}
 
   /**
    * Creates a {@link Promo} instance from the provided args.
    */
   static fromArgs(args: PromoArgs) {
-    return new Promo(args.mint, args.bump)
+    return new Promo(args.user, args.mint, args.bump)
   }
 
   /**
@@ -63,6 +68,20 @@ export class Promo implements PromoArgs {
       throw new Error(`Unable to find Promo account at ${address}`)
     }
     return Promo.fromAccountInfo(accountInfo, 0)[0]
+  }
+
+  /**
+   * Provides a {@link web3.Connection.getProgramAccounts} config builder,
+   * to fetch accounts matching filters that can be specified via that builder.
+   *
+   * @param programId - the program that owns the accounts we are filtering
+   */
+  static gpaBuilder(
+    programId: web3.PublicKey = new web3.PublicKey(
+      'DVniVd3L9KdZuGXte2dtbWrB7QRCiUpJFgu29uAaM1fR'
+    )
+  ) {
+    return beetSolana.GpaBuilder.fromStruct(programId, promoBeet)
   }
 
   /**
@@ -122,6 +141,7 @@ export class Promo implements PromoArgs {
    */
   pretty() {
     return {
+      user: this.user.toBase58(),
       mint: this.mint.toBase58(),
       bump: this.bump,
     }
@@ -140,6 +160,7 @@ export const promoBeet = new beet.BeetStruct<
 >(
   [
     ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
+    ['user', beetSolana.publicKey],
     ['mint', beetSolana.publicKey],
     ['bump', beet.u8],
   ],

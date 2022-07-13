@@ -156,6 +156,10 @@
         "kind": "struct",
         "fields": [
           {
+            "name": "user",
+            "type": "publicKey"
+          },
+          {
             "name": "mint",
             "type": "publicKey"
           },
@@ -168,7 +172,7 @@
     }
   ],
   "metadata": {
-    "address": "ERUzTgkzMzXq738vac9e4sLGcPNSZAKQ9vuUuH87bY7b",
+    "address": "DVniVd3L9KdZuGXte2dtbWrB7QRCiUpJFgu29uAaM1fR",
     "origin": "anchor",
     "binaryVersion": "0.24.2",
     "libVersion": "0.24.2"

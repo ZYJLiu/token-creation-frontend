@@ -5,9 +5,9 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as web3 from '@solana/web3.js'
-import * as beet from '@metaplex-foundation/beet'
-import * as beetSolana from '@metaplex-foundation/beet-solana'
+import * as web3 from "@solana/web3.js";
+import * as beet from "@metaplex-foundation/beet";
+import * as beetSolana from "@metaplex-foundation/beet-solana";
 
 /**
  * Arguments used to create {@link Merchant}
@@ -15,12 +15,12 @@ import * as beetSolana from '@metaplex-foundation/beet-solana'
  * @category generated
  */
 export type MerchantArgs = {
-  user: web3.PublicKey
-  name: string
-  promoCount: beet.bignum
-}
+  user: web3.PublicKey;
+  name: string;
+  promoCount: beet.bignum;
+};
 
-export const merchantDiscriminator = [71, 235, 30, 40, 231, 21, 32, 64]
+export const merchantDiscriminator = [71, 235, 30, 40, 231, 21, 32, 64];
 /**
  * Holds the data for the {@link Merchant} Account and provides de/serialization
  * functionality for that data
@@ -39,7 +39,7 @@ export class Merchant implements MerchantArgs {
    * Creates a {@link Merchant} instance from the provided args.
    */
   static fromArgs(args: MerchantArgs) {
-    return new Merchant(args.user, args.name, args.promoCount)
+    return new Merchant(args.user, args.name, args.promoCount);
   }
 
   /**
@@ -50,7 +50,7 @@ export class Merchant implements MerchantArgs {
     accountInfo: web3.AccountInfo<Buffer>,
     offset = 0
   ): [Merchant, number] {
-    return Merchant.deserialize(accountInfo.data, offset)
+    return Merchant.deserialize(accountInfo.data, offset);
   }
 
   /**
@@ -63,11 +63,25 @@ export class Merchant implements MerchantArgs {
     connection: web3.Connection,
     address: web3.PublicKey
   ): Promise<Merchant> {
-    const accountInfo = await connection.getAccountInfo(address)
+    const accountInfo = await connection.getAccountInfo(address);
     if (accountInfo == null) {
-      throw new Error(`Unable to find Merchant account at ${address}`)
+      throw new Error(`Unable to find Merchant account at ${address}`);
     }
-    return Merchant.fromAccountInfo(accountInfo, 0)[0]
+    return Merchant.fromAccountInfo(accountInfo, 0)[0];
+  }
+
+  /**
+   * Provides a {@link web3.Connection.getProgramAccounts} config builder,
+   * to fetch accounts matching filters that can be specified via that builder.
+   *
+   * @param programId - the program that owns the accounts we are filtering
+   */
+  static gpaBuilder(
+    programId: web3.PublicKey = new web3.PublicKey(
+      "DVniVd3L9KdZuGXte2dtbWrB7QRCiUpJFgu29uAaM1fR"
+    )
+  ) {
+    return beetSolana.GpaBuilder.fromStruct(programId, merchantBeet);
   }
 
   /**
@@ -75,7 +89,7 @@ export class Merchant implements MerchantArgs {
    * @returns a tuple of the account data and the offset up to which the buffer was read to obtain it.
    */
   static deserialize(buf: Buffer, offset = 0): [Merchant, number] {
-    return merchantBeet.deserialize(buf, offset)
+    return merchantBeet.deserialize(buf, offset);
   }
 
   /**
@@ -86,7 +100,7 @@ export class Merchant implements MerchantArgs {
     return merchantBeet.serialize({
       accountDiscriminator: merchantDiscriminator,
       ...this,
-    })
+    });
   }
 
   /**
@@ -97,11 +111,11 @@ export class Merchant implements MerchantArgs {
    * depends on them
    */
   static byteSize(args: MerchantArgs) {
-    const instance = Merchant.fromArgs(args)
+    const instance = Merchant.fromArgs(args);
     return merchantBeet.toFixedFromValue({
       accountDiscriminator: merchantDiscriminator,
       ...instance,
-    }).byteSize
+    }).byteSize;
   }
 
   /**
@@ -120,7 +134,7 @@ export class Merchant implements MerchantArgs {
     return connection.getMinimumBalanceForRentExemption(
       Merchant.byteSize(args),
       commitment
-    )
+    );
   }
 
   /**
@@ -132,17 +146,17 @@ export class Merchant implements MerchantArgs {
       user: this.user.toBase58(),
       name: this.name,
       promoCount: (() => {
-        const x = <{ toNumber: () => number }>this.promoCount
-        if (typeof x.toNumber === 'function') {
+        const x = <{ toNumber: () => number }>this.promoCount;
+        if (typeof x.toNumber === "function") {
           try {
-            return x.toNumber()
+            return x.toNumber();
           } catch (_) {
-            return x
+            return x;
           }
         }
-        return x
+        return x;
       })(),
-    }
+    };
   }
 }
 
@@ -153,15 +167,15 @@ export class Merchant implements MerchantArgs {
 export const merchantBeet = new beet.FixableBeetStruct<
   Merchant,
   MerchantArgs & {
-    accountDiscriminator: number[] /* size: 8 */
+    accountDiscriminator: number[] /* size: 8 */;
   }
 >(
   [
-    ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
-    ['user', beetSolana.publicKey],
-    ['name', beet.utf8String],
-    ['promoCount', beet.u64],
+    ["accountDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)],
+    ["user", beetSolana.publicKey],
+    ["name", beet.utf8String],
+    ["promoCount", beet.u64],
   ],
   Merchant.fromArgs,
-  'Merchant'
-)
+  "Merchant"
+);

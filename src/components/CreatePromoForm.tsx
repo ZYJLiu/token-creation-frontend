@@ -1,15 +1,6 @@
 import { FC, useState, Fragment, useEffect, useRef, useCallback } from "react";
 import { Transaction, PublicKey } from "@solana/web3.js";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
-
-import { notify } from "../utils/notifications";
-
-import { createCreatePromoInstruction } from "../../programs/coupons/instructions/createPromo";
-import { Merchant } from "../../programs/coupons/accounts/Merchant";
-import idl from "../../programs/coupons/token_rewards_coupons.json";
-
-import BN from "bn.js";
-
 import {
   Metaplex,
   walletAdapterIdentity,
@@ -19,16 +10,18 @@ import {
   findMetadataPda,
 } from "@metaplex-foundation/js";
 
-const classNames = (...classes) => {
-  return classes.filter(Boolean).join(" ");
-};
+import { createCreatePromoInstruction } from "../../programs/coupons/instructions/createPromo";
+import { Merchant } from "../../programs/coupons/accounts/Merchant";
+import idl from "../../programs/coupons/token_rewards_coupons.json";
 
-export const UploadMetadata: FC = ({}) => {
+import { notify } from "../utils/notifications";
+import BN from "bn.js";
+
+export const CreatePromo: FC = () => {
   const wallet = useWallet();
   const { publicKey, sendTransaction } = useWallet();
   const { connection } = useConnection();
 
-  const [selectedImage, setSelectedImage] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [metadataUrl, setMetadataUrl] = useState(null);
 
@@ -38,6 +31,11 @@ export const UploadMetadata: FC = ({}) => {
   const [transaction, setTransaction] = useState("");
 
   const urlMounted = useRef(false);
+
+  const programId = new PublicKey(idl.metadata.address);
+  const TOKEN_METADATA_PROGRAM_ID = new PublicKey(
+    "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+  );
 
   const metaplex = new Metaplex(connection).use(
     bundlrStorage({
@@ -51,29 +49,18 @@ export const UploadMetadata: FC = ({}) => {
     metaplex.use(walletAdapterIdentity(wallet));
   }
 
-  // check wallet connection
-  useEffect(() => {
-    if (wallet && wallet.connected) {
-      async function connectProvider() {
-        console.log("Connected Wallet", wallet);
-        await wallet.connect();
-        const provider = wallet.wallet.adapter;
-        await provider.connect();
-      }
-      connectProvider();
-    }
-  }, [wallet]);
-
-  // handle image
+  // upload image
   const handleImage = async (event) => {
-    const browserFile: File = event.target.files[0];
-    const file: MetaplexFile = await useMetaplexFileFromBrowser(browserFile);
+    const file: MetaplexFile = await useMetaplexFileFromBrowser(
+      event.target.files[0]
+    );
 
     const imageUrl = await metaplex.storage().upload(file);
     setImageUrl(imageUrl);
     console.log(imageUrl);
   };
 
+  // upload metadata
   const uploadMetadata = async () => {
     const { uri, metadata } = await metaplex.nfts().uploadMetadata({
       name: tokenName,
@@ -85,41 +72,31 @@ export const UploadMetadata: FC = ({}) => {
     console.log(uri);
   };
 
-  useEffect(() => {
-    if (urlMounted.current && metadataUrl != null) {
-      createPromo({
-        metadata: metadataUrl,
-        symbol: symbol,
-        tokenName: tokenName,
-      });
-    } else {
-      urlMounted.current = true;
-    }
-  }, [metadataUrl]);
-
   // build and send transaction
   const createPromo = useCallback(
     async (form) => {
-      const programId = new PublicKey(idl.metadata.address);
       if (!publicKey) {
         console.log("error", "Wallet not connected!");
         return;
       }
 
+      // merchant account PDA
       const [merchant, merchantBump] = await PublicKey.findProgramAddress(
         [Buffer.from("MERCHANT"), publicKey.toBuffer()],
         programId
       );
 
+      // get merchant account data
       const merchantInfo = await Merchant.fromAccountAddress(
         connection,
         merchant
       );
 
-      const count = new BN(merchantInfo.promoCount);
-
       const [promo, promoBump] = await PublicKey.findProgramAddress(
-        [merchant.toBuffer(), count.toArrayLike(Buffer, "be", 8)],
+        [
+          merchant.toBuffer(),
+          new BN(merchantInfo.promoCount).toArrayLike(Buffer, "be", 8),
+        ],
         programId
       );
 
@@ -129,10 +106,6 @@ export const UploadMetadata: FC = ({}) => {
       );
 
       const metadataPDA = await findMetadataPda(promoMint);
-
-      const TOKEN_METADATA_PROGRAM_ID = new PublicKey(
-        "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
-      );
 
       const createPromo = new Transaction().add(
         createCreatePromoInstruction(
@@ -169,6 +142,32 @@ export const UploadMetadata: FC = ({}) => {
     },
     [publicKey, connection, sendTransaction]
   );
+
+  // send transaction once metadata uplaoded
+  useEffect(() => {
+    if (urlMounted.current && metadataUrl != null) {
+      createPromo({
+        metadata: metadataUrl,
+        symbol: symbol,
+        tokenName: tokenName,
+      });
+    } else {
+      urlMounted.current = true;
+    }
+  }, [metadataUrl]);
+
+  // check wallet connection
+  useEffect(() => {
+    if (wallet && wallet.connected) {
+      async function connectProvider() {
+        console.log("Connected Wallet", wallet);
+        await wallet.connect();
+        const provider = wallet.wallet.adapter;
+        await provider.connect();
+      }
+      connectProvider();
+    }
+  }, [wallet]);
 
   return (
     <div className="bg-white shadow overflow-hidden sm:rounded-lg">
