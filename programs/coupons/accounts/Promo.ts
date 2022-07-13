@@ -76,13 +76,13 @@ export class Promo implements PromoArgs {
    *
    * @param programId - the program that owns the accounts we are filtering
    */
-  // static gpaBuilder(
-  //   programId: web3.PublicKey = new web3.PublicKey(
-  //     'DVniVd3L9KdZuGXte2dtbWrB7QRCiUpJFgu29uAaM1fR'
-  //   )
-  // ) {
-  //   return beetSolana.GpaBuilder.fromStruct(programId, promoBeet)
-  // }
+  static gpaBuilder(
+    programId: web3.PublicKey = new web3.PublicKey(
+      "DVniVd3L9KdZuGXte2dtbWrB7QRCiUpJFgu29uAaM1fR"
+    )
+  ) {
+    return beetSolana.GpaBuilder.fromStruct(programId, promoBeet);
+  }
 
   /**
    * Deserializes the {@link Promo} from the provided data Buffer.
