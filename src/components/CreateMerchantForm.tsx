@@ -30,6 +30,8 @@ export const CreateMerchant: FC<Props> = ({ setMerchant }) => {
     }
   }, [wallet]);
 
+
+  // create new "merchant" account
   const onClick = useCallback(async () => {
     const programId = new PublicKey(idl.metadata.address);
     if (!publicKey) {
@@ -37,11 +39,13 @@ export const CreateMerchant: FC<Props> = ({ setMerchant }) => {
       return;
     }
 
+    // derive merchant account PDA
     const [merchant, merchantBump] = await PublicKey.findProgramAddress(
       [Buffer.from("MERCHANT"), publicKey.toBuffer()],
       programId
     );
 
+    // build transaction
     const createMerchant = new Transaction().add(
       createCreateMerchantInstruction(
         {
@@ -54,6 +58,7 @@ export const CreateMerchant: FC<Props> = ({ setMerchant }) => {
       )
     );
 
+    // send transaction
     const transactionSignature = await sendTransaction(
       createMerchant,
       connection

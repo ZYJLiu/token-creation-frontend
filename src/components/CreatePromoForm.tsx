@@ -37,6 +37,7 @@ export const CreatePromo: FC = () => {
     "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
   );
 
+  // set up metaplex object
   const metaplex = new Metaplex(connection).use(
     bundlrStorage({
       address: "https://devnet.bundlr.network",
@@ -92,6 +93,7 @@ export const CreatePromo: FC = () => {
         merchant
       );
 
+      // promo account PDA
       const [promo, promoBump] = await PublicKey.findProgramAddress(
         [
           merchant.toBuffer(),
@@ -100,13 +102,16 @@ export const CreatePromo: FC = () => {
         programId
       );
 
+      // promo mint PDA
       const [promoMint, promoMintBump] = await PublicKey.findProgramAddress(
         [Buffer.from("MINT"), promo.toBuffer()],
         programId
       );
 
+      // get mint metedata account PDA
       const metadataPDA = await findMetadataPda(promoMint);
 
+      // build create promotransaction
       const createPromo = new Transaction().add(
         createCreatePromoInstruction(
           {

@@ -108,18 +108,7 @@ export default function Modal({ open, data, onClose, wallet }) {
         const signatureInfo = await findReference(connection, reference, {
           finality: "confirmed",
         });
-        // // Validate that the transaction has the expected recipient, amount and SPL token
-        // await validateTransfer(
-        //   connection,
-        //   signatureInfo.signature,
-        //   {
-        //     recipient: new PublicKey(wallet),
-        //     amount: new BigNumber(0),
-        //     splToken: usdcAddress,
-        //     reference,
-        //   },
-        //   { commitment: "confirmed" }
-        // );
+
         router.push("/confirmedNft");
         // console.log("confirmed");
       } catch (e) {

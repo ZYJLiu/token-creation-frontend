@@ -99,9 +99,6 @@ async function post(
     const endpoint = clusterApiUrl(network);
     const connection = new Connection(endpoint);
 
-    // Get details about the USDC token
-    const usdcMint = await getMint(connection, usdcAddress);
-
     const programId = new PublicKey(idl.metadata.address);
 
     // merchant account PDA
@@ -110,11 +107,13 @@ async function post(
       programId
     );
 
+    // promo account PDA
     const [promo, promoBump] = await PublicKey.findProgramAddress(
       [merchant.toBuffer(), new BN(count).toArrayLike(Buffer, "be", 8)],
       programId
     );
 
+    // promo mint PDA
     const [promoMint, promoMintBump] = await PublicKey.findProgramAddress(
       [Buffer.from("MINT"), promo.toBuffer()],
       programId
@@ -128,11 +127,13 @@ async function post(
       feePayer: buyerPublicKey,
     });
 
+    // get ATA address for user scanning QR code
     const customerNft = await getAssociatedTokenAddress(
       promoMint,
       buyerPublicKey
     );
 
+    // instruction to fetch ATA
     const createAccountInstruction = createAssociatedTokenAccountInstruction(
       buyerPublicKey,
       customerNft,
@@ -142,13 +143,8 @@ async function post(
       ASSOCIATED_TOKEN_PROGRAM_ID
     );
 
-    // const burnInstruction = createBurnInstruction(
-    //   customerNft,
-    //   promoMint,
-    //   buyerPublicKey,
-    //   1
-    // );
 
+    // check if ATA exists, if not add instruction to create one
     let buyer: Account;
     try {
       buyer = await getAccount(
@@ -170,6 +166,7 @@ async function post(
       }
     }
 
+    // instruction to mint promo token
     const transferInstruction = createMintNftInstruction({
       promo: promo,
       promoMint: promoMint,

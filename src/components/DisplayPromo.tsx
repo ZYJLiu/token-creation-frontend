@@ -3,6 +3,7 @@ import { Transaction, PublicKey } from "@solana/web3.js";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 
 import { Metaplex } from "@metaplex-foundation/js";
+import { bignum } from "@metaplex-foundation/beet";
 
 import { Merchant } from "../../programs/coupons/accounts/Merchant";
 import { Promo } from "../../programs/coupons/accounts/Promo";
