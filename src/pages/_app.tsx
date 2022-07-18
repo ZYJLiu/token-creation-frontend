@@ -5,6 +5,7 @@ import { ContextProvider } from "../contexts/ContextProvider";
 import { AppBar } from "../components/AppBar";
 import { ContentContainer } from "../components/ContentContainer";
 import Notifications from "../components/Notification";
+import { WorkspaceProvider } from "contexts/Workspace";
 
 require("@solana/wallet-adapter-react-ui/styles.css");
 require("../styles/globals.css");
@@ -21,7 +22,9 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
           <Notifications />
           <AppBar />
           <ContentContainer>
-            <Component {...pageProps} />
+            <WorkspaceProvider>
+              <Component {...pageProps} />
+            </WorkspaceProvider>
           </ContentContainer>
         </div>
       </ContextProvider>
