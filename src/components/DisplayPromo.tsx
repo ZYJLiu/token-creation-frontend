@@ -30,34 +30,45 @@ export const DisplayPromo: FC = () => {
 
   const programId = new PublicKey(idl.metadata.address);
 
+  // fetch all promos for connected wallet
   const fetchPromo = async () => {
     let mints = [];
     let info = [];
 
+    // derive merchant pda
     const [merchant, merchantBump] = await PublicKey.findProgramAddress(
       [Buffer.from("MERCHANT"), publicKey.toBuffer()],
       programId
     );
-
+    
+    // get merchant info
     const merchantInfo = await Merchant.fromAccountAddress(
       connection,
       merchant
     );
-
+    
+    // get current count stored on merchant account
     const count = merchantInfo.promoCount.toNumber();
 
+    // for loop to derive and fetch all promos 
     for (let i = count - 1; i >= 0; i--) {
+
+      // derive promo pda
       const [promo, promoBump] = await PublicKey.findProgramAddress(
         [merchant.toBuffer(), new BN(i).toArrayLike(Buffer, "be", 8)],
         programId
       );
-
+      
+      // fetch promo pda account data
       const promoInfo = await Promo.fromAccountAddress(connection, promo);
+
+      // get promo mint stored on promo pda account
       mints.push(promoInfo.mint);
       info.push([i, promo, promoInfo.mint]);
       // console.log(info);
     }
 
+    // fetch metadata for all promo mints
     const nfts = await metaplex.nfts().findAllByMintList(mints);
     // console.log(nfts);
     setNfts(nfts);
@@ -66,7 +77,7 @@ export const DisplayPromo: FC = () => {
 
   let jsonData = [];
 
-  // fetch nft data in loop
+  // fetch URI data for all mints in loop
   const forLoop = async () => {
     if (nfts !== null) {
       // console.log("data", data);
