@@ -5,9 +5,9 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as web3 from "@solana/web3.js";
-import * as beetSolana from "@metaplex-foundation/beet-solana";
-import * as beet from "@metaplex-foundation/beet";
+import * as web3 from '@solana/web3.js'
+import * as beetSolana from '@metaplex-foundation/beet-solana'
+import * as beet from '@metaplex-foundation/beet'
 
 /**
  * Arguments used to create {@link Promo}
@@ -15,12 +15,12 @@ import * as beet from "@metaplex-foundation/beet";
  * @category generated
  */
 export type PromoArgs = {
-  user: web3.PublicKey;
-  mint: web3.PublicKey;
-  bump: number;
-};
+  user: web3.PublicKey
+  mint: web3.PublicKey
+  bump: number
+}
 
-export const promoDiscriminator = [56, 91, 197, 41, 229, 168, 221, 54];
+export const promoDiscriminator = [56, 91, 197, 41, 229, 168, 221, 54]
 /**
  * Holds the data for the {@link Promo} Account and provides de/serialization
  * functionality for that data
@@ -39,7 +39,7 @@ export class Promo implements PromoArgs {
    * Creates a {@link Promo} instance from the provided args.
    */
   static fromArgs(args: PromoArgs) {
-    return new Promo(args.user, args.mint, args.bump);
+    return new Promo(args.user, args.mint, args.bump)
   }
 
   /**
@@ -50,7 +50,7 @@ export class Promo implements PromoArgs {
     accountInfo: web3.AccountInfo<Buffer>,
     offset = 0
   ): [Promo, number] {
-    return Promo.deserialize(accountInfo.data, offset);
+    return Promo.deserialize(accountInfo.data, offset)
   }
 
   /**
@@ -63,11 +63,11 @@ export class Promo implements PromoArgs {
     connection: web3.Connection,
     address: web3.PublicKey
   ): Promise<Promo> {
-    const accountInfo = await connection.getAccountInfo(address);
+    const accountInfo = await connection.getAccountInfo(address)
     if (accountInfo == null) {
-      throw new Error(`Unable to find Promo account at ${address}`);
+      throw new Error(`Unable to find Promo account at ${address}`)
     }
-    return Promo.fromAccountInfo(accountInfo, 0)[0];
+    return Promo.fromAccountInfo(accountInfo, 0)[0]
   }
 
   /**
@@ -78,10 +78,10 @@ export class Promo implements PromoArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      "DVniVd3L9KdZuGXte2dtbWrB7QRCiUpJFgu29uAaM1fR"
+      '37kdkULv7NwBh9QSgv5SYSU3MQSZQwj5BXCUeMys16tF'
     )
   ) {
-    return beetSolana.GpaBuilder.fromStruct(programId, promoBeet);
+    return beetSolana.GpaBuilder.fromStruct(programId, promoBeet)
   }
 
   /**
@@ -89,7 +89,7 @@ export class Promo implements PromoArgs {
    * @returns a tuple of the account data and the offset up to which the buffer was read to obtain it.
    */
   static deserialize(buf: Buffer, offset = 0): [Promo, number] {
-    return promoBeet.deserialize(buf, offset);
+    return promoBeet.deserialize(buf, offset)
   }
 
   /**
@@ -100,7 +100,7 @@ export class Promo implements PromoArgs {
     return promoBeet.serialize({
       accountDiscriminator: promoDiscriminator,
       ...this,
-    });
+    })
   }
 
   /**
@@ -108,7 +108,7 @@ export class Promo implements PromoArgs {
    * {@link Promo}
    */
   static get byteSize() {
-    return promoBeet.byteSize;
+    return promoBeet.byteSize
   }
 
   /**
@@ -124,7 +124,7 @@ export class Promo implements PromoArgs {
     return connection.getMinimumBalanceForRentExemption(
       Promo.byteSize,
       commitment
-    );
+    )
   }
 
   /**
@@ -132,7 +132,7 @@ export class Promo implements PromoArgs {
    * hold {@link Promo} data.
    */
   static hasCorrectByteSize(buf: Buffer, offset = 0) {
-    return buf.byteLength - offset === Promo.byteSize;
+    return buf.byteLength - offset === Promo.byteSize
   }
 
   /**
@@ -144,7 +144,7 @@ export class Promo implements PromoArgs {
       user: this.user.toBase58(),
       mint: this.mint.toBase58(),
       bump: this.bump,
-    };
+    }
   }
 }
 
@@ -155,15 +155,15 @@ export class Promo implements PromoArgs {
 export const promoBeet = new beet.BeetStruct<
   Promo,
   PromoArgs & {
-    accountDiscriminator: number[] /* size: 8 */;
+    accountDiscriminator: number[] /* size: 8 */
   }
 >(
   [
-    ["accountDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)],
-    ["user", beetSolana.publicKey],
-    ["mint", beetSolana.publicKey],
-    ["bump", beet.u8],
+    ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
+    ['user', beetSolana.publicKey],
+    ['mint', beetSolana.publicKey],
+    ['bump', beet.u8],
   ],
   Promo.fromArgs,
-  "Promo"
-);
+  'Promo'
+)
