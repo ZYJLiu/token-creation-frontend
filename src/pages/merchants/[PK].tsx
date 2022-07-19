@@ -12,7 +12,11 @@ export default function Promo() {
     const router = useRouter()
     const { PK } = router.query
     const workspace = useWorkspace()
-    const merchant = new PublicKey(PK)
+
+    // vercel breaking
+    const merchant = new PublicKey(
+        PK || "Gqu7KLHnkdMrtfAN8TqQGU4o1PvXA2X4VTNkF4ok4t78"
+    )
 
     const connection = new Connection(clusterApiUrl("devnet"))
     const metaplex = new Metaplex(connection)
