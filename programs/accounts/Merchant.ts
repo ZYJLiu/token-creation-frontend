@@ -16,8 +16,9 @@ import * as beetSolana from '@metaplex-foundation/beet-solana'
  */
 export type MerchantArgs = {
   user: web3.PublicKey
-  name: string
   promoCount: beet.bignum
+  image: string
+  name: string
 }
 
 export const merchantDiscriminator = [71, 235, 30, 40, 231, 21, 32, 64]
@@ -31,15 +32,16 @@ export const merchantDiscriminator = [71, 235, 30, 40, 231, 21, 32, 64]
 export class Merchant implements MerchantArgs {
   private constructor(
     readonly user: web3.PublicKey,
-    readonly name: string,
-    readonly promoCount: beet.bignum
+    readonly promoCount: beet.bignum,
+    readonly image: string,
+    readonly name: string
   ) {}
 
   /**
    * Creates a {@link Merchant} instance from the provided args.
    */
   static fromArgs(args: MerchantArgs) {
-    return new Merchant(args.user, args.name, args.promoCount)
+    return new Merchant(args.user, args.promoCount, args.image, args.name)
   }
 
   /**
@@ -78,7 +80,7 @@ export class Merchant implements MerchantArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      '37kdkULv7NwBh9QSgv5SYSU3MQSZQwj5BXCUeMys16tF'
+      'FWup1J8CtHmrKuiN7HCBCPfcjFZaUCMEkCW8XXK3TLpU'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, merchantBeet)
@@ -144,7 +146,6 @@ export class Merchant implements MerchantArgs {
   pretty() {
     return {
       user: this.user.toBase58(),
-      name: this.name,
       promoCount: (() => {
         const x = <{ toNumber: () => number }>this.promoCount
         if (typeof x.toNumber === 'function') {
@@ -156,6 +157,8 @@ export class Merchant implements MerchantArgs {
         }
         return x
       })(),
+      image: this.image,
+      name: this.name,
     }
   }
 }
@@ -173,8 +176,9 @@ export const merchantBeet = new beet.FixableBeetStruct<
   [
     ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
     ['user', beetSolana.publicKey],
-    ['name', beet.utf8String],
     ['promoCount', beet.u64],
+    ['image', beet.utf8String],
+    ['name', beet.utf8String],
   ],
   Merchant.fromArgs,
   'Merchant'

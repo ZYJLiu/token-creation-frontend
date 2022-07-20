@@ -30,6 +30,10 @@
                 {
                     "name": "name",
                     "type": "string"
+                },
+                {
+                    "name": "image",
+                    "type": "string"
                 }
             ]
         },
@@ -140,12 +144,16 @@
                         "type": "publicKey"
                     },
                     {
-                        "name": "name",
+                        "name": "promoCount",
+                        "type": "u64"
+                    },
+                    {
+                        "name": "image",
                         "type": "string"
                     },
                     {
-                        "name": "promoCount",
-                        "type": "u64"
+                        "name": "name",
+                        "type": "string"
                     }
                 ]
             }
@@ -172,9 +180,6 @@
         }
     ],
     "metadata": {
-        "address": "37kdkULv7NwBh9QSgv5SYSU3MQSZQwj5BXCUeMys16tF",
-        "origin": "anchor",
-        "binaryVersion": "0.24.2",
-        "libVersion": "0.24.2"
+        "address": "FWup1J8CtHmrKuiN7HCBCPfcjFZaUCMEkCW8XXK3TLpU"
     }
 }

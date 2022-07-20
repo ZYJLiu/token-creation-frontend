@@ -5,8 +5,8 @@ import { useWallet, useConnection } from "@solana/wallet-adapter-react"
 import { Metaplex } from "@metaplex-foundation/js"
 import { bignum } from "@metaplex-foundation/beet"
 
-import { Merchant } from "../../programs/coupons/accounts/Merchant"
-import { Promo } from "../../programs/coupons/accounts/Promo"
+import { Merchant } from "../../programs/accounts/Merchant"
+import { Promo } from "../../programs/accounts/Promo"
 import idl from "../../programs/coupons/token_rewards_coupons.json"
 
 import Modal from "./Modal"

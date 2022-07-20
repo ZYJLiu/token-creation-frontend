@@ -78,7 +78,7 @@ export class Promo implements PromoArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      '37kdkULv7NwBh9QSgv5SYSU3MQSZQwj5BXCUeMys16tF'
+      'FWup1J8CtHmrKuiN7HCBCPfcjFZaUCMEkCW8XXK3TLpU'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, promoBeet)

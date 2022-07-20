@@ -30,6 +30,10 @@ export type TokenRewardsCoupons = {
                 {
                     name: "name"
                     type: "string"
+                },
+                {
+                    name: "image"
+                    type: "string"
                 }
             ]
         },
@@ -140,12 +144,16 @@ export type TokenRewardsCoupons = {
                         type: "publicKey"
                     },
                     {
-                        name: "name"
+                        name: "promoCount"
+                        type: "u64"
+                    },
+                    {
+                        name: "image"
                         type: "string"
                     },
                     {
-                        name: "promoCount"
-                        type: "u64"
+                        name: "name"
+                        type: "string"
                     }
                 ]
             }
@@ -204,6 +212,10 @@ export const IDL: TokenRewardsCoupons = {
             args: [
                 {
                     name: "name",
+                    type: "string",
+                },
+                {
+                    name: "image",
                     type: "string",
                 },
             ],
@@ -315,12 +327,16 @@ export const IDL: TokenRewardsCoupons = {
                         type: "publicKey",
                     },
                     {
-                        name: "name",
+                        name: "promoCount",
+                        type: "u64",
+                    },
+                    {
+                        name: "image",
                         type: "string",
                     },
                     {
-                        name: "promoCount",
-                        type: "u64",
+                        name: "name",
+                        type: "string",
                     },
                 ],
             },

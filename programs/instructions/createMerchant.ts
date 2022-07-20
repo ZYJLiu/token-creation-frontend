@@ -15,6 +15,7 @@ import * as web3 from '@solana/web3.js'
  */
 export type CreateMerchantInstructionArgs = {
   name: string
+  image: string
 }
 /**
  * @category Instructions
@@ -29,6 +30,7 @@ export const createMerchantStruct = new beet.FixableBeetArgsStruct<
   [
     ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
     ['name', beet.utf8String],
+    ['image', beet.utf8String],
   ],
   'CreateMerchantInstructionArgs'
 )
@@ -65,7 +67,7 @@ export const createMerchantInstructionDiscriminator = [
 export function createCreateMerchantInstruction(
   accounts: CreateMerchantInstructionAccounts,
   args: CreateMerchantInstructionArgs,
-  programId = new web3.PublicKey('37kdkULv7NwBh9QSgv5SYSU3MQSZQwj5BXCUeMys16tF')
+  programId = new web3.PublicKey('FWup1J8CtHmrKuiN7HCBCPfcjFZaUCMEkCW8XXK3TLpU')
 ) {
   const [data] = createMerchantStruct.serialize({
     instructionDiscriminator: createMerchantInstructionDiscriminator,
