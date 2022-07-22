@@ -76,22 +76,22 @@ async function post(
             return
         }
 
-        const { wallet } = req.query
-        if (!wallet) {
-            console.log("Returning 400: no wallet")
-            res.status(400).json({ error: "No walet provided" })
-            return
-        }
+        // const { wallet } = req.query
+        // if (!wallet) {
+        //     console.log("Returning 400: no wallet")
+        //     res.status(400).json({ error: "No walet provided" })
+        //     return
+        // }
 
-        const { index } = req.query
-        if (!index) {
+        const { promo } = req.query
+        if (!promo) {
             console.log("Returning 400: no index")
             res.status(400).json({ error: "No index provided" })
             return
         }
 
-        const count = index as string
-        const publicKey = new PublicKey(wallet)
+        // const count = index as string
+        // const publicKey = new PublicKey(wallet)
 
         const buyerPublicKey = new PublicKey(account)
 
@@ -101,21 +101,9 @@ async function post(
 
         const programId = new PublicKey(idl.metadata.address)
 
-        // merchant account PDA
-        const [merchant, merchantBump] = await PublicKey.findProgramAddress(
-            [Buffer.from("MERCHANT"), publicKey.toBuffer()],
-            programId
-        )
-
-        // promo account PDA
-        const [promo, promoBump] = await PublicKey.findProgramAddress(
-            [merchant.toBuffer(), new BN(count).toArrayLike(Buffer, "be", 8)],
-            programId
-        )
-
         // promo mint PDA
         const [promoMint, promoMintBump] = await PublicKey.findProgramAddress(
-            [Buffer.from("MINT"), promo.toBuffer()],
+            [Buffer.from("MINT"), new PublicKey(promo.toString()).toBuffer()],
             programId
         )
 
@@ -168,7 +156,7 @@ async function post(
 
         // instruction to mint promo token
         const transferInstruction = createMintNftInstruction({
-            promo: promo,
+            promo: new PublicKey(promo.toString()),
             promoMint: promoMint,
             customerNft: customerNft,
             user: buyerPublicKey,

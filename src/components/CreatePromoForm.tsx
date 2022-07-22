@@ -28,6 +28,8 @@ export const CreatePromo: FC = () => {
     const [tokenName, setTokenName] = useState("")
     const [symbol, setSymbol] = useState("")
     const [description, setDescription] = useState("")
+    const [restrictions, setRestrictions] = useState("")
+    const [expiration, setExpiration] = useState("")
     const [transaction, setTransaction] = useState("")
 
     const urlMounted = useRef(false)
@@ -63,12 +65,23 @@ export const CreatePromo: FC = () => {
 
     // upload metadata
     const uploadMetadata = async () => {
-        const { uri, metadata } = await metaplex.nfts().uploadMetadata({
+        const data = {
             name: tokenName,
             symbol: symbol,
             description: description,
             image: imageUrl,
-        })
+            attributes: [
+                {
+                    trait_type: "Expiration",
+                    value: expiration,
+                },
+                {
+                    trait_type: "Restrictions",
+                    value: restrictions,
+                },
+            ],
+        }
+        const { uri, metadata } = await metaplex.nfts().uploadMetadata(data)
         setMetadataUrl(uri)
         console.log(uri)
     }
@@ -158,7 +171,7 @@ export const CreatePromo: FC = () => {
         if (urlMounted.current && metadataUrl != null) {
             createPromo({
                 metadata: metadataUrl,
-                symbol: symbol,
+                symbol: "Promo",
                 tokenName: tokenName,
             })
         } else {
@@ -263,20 +276,34 @@ export const CreatePromo: FC = () => {
                             <input
                                 type="text"
                                 className="form-control block mb-2 w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
-                                placeholder="Token Name"
+                                placeholder="Promo Name"
                                 onChange={(e) => setTokenName(e.target.value)}
                             />
-                            <input
+                            {/* <input
                                 type="text"
                                 className="form-control block mb-2 w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
                                 placeholder="Symbol"
                                 onChange={(e) => setSymbol(e.target.value)}
-                            />
+                            /> */}
                             <input
                                 type="text"
                                 className="form-control block mb-2 w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
                                 placeholder="Description"
                                 onChange={(e) => setDescription(e.target.value)}
+                            />
+                            <input
+                                type="text"
+                                className="form-control block mb-2 w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                                placeholder="Restrictions"
+                                onChange={(e) =>
+                                    setRestrictions(e.target.value)
+                                }
+                            />
+                            <input
+                                type="date"
+                                className="form-control block mb-2 w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                                placeholder="Expiration"
+                                onChange={(e) => setExpiration(e.target.value)}
                             />
                             <button
                                 className="px-8 m-2 btn animate-pulse bg-gradient-to-r from-[#9945FF] to-[#14F195] hover:from-pink-500 hover:to-yellow-500 ..."
