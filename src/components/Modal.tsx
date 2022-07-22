@@ -33,7 +33,7 @@ const MODAL_STYLES = {
     left: "50%",
     transform: "translate(-50%, -50%)",
     backgroundColor: "#FFF",
-    padding: "20px",
+    padding: "10px",
     zIndex: 1000,
 }
 
@@ -143,9 +143,12 @@ export default function Modal({ open, data, onClose, wallet }) {
             <div style={OVERLAY_STYLES} />
             <div style={MODAL_STYLES}>
                 <div ref={qrRef} />
-                <div className="px-8 m-2 btn animate-pulse bg-gradient-to-r from-[#9945FF] to-[#14F195] hover:from-pink-500 hover:to-yellow-500 ...">
-                    <button onClick={onClose}>Close</button>
-                </div>
+                <button
+                    className=" btn animate-pulse bg-gradient-to-r from-[#9945FF] to-[#14F195] hover:from-pink-500 hover:to-yellow-500 ..."
+                    onClick={onClose}
+                >
+                    Close
+                </button>
             </div>
         </div>
     )

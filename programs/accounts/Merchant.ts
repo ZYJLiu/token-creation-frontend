@@ -80,7 +80,7 @@ export class Merchant implements MerchantArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      'FWup1J8CtHmrKuiN7HCBCPfcjFZaUCMEkCW8XXK3TLpU'
+      '2voaAEWrDYbrP5wPgm3K3QdPGzvstAC1b8QuGaPRSg3U'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, merchantBeet)

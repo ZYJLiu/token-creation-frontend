@@ -79,7 +79,7 @@ export const createPromoInstructionDiscriminator = [
 export function createCreatePromoInstruction(
   accounts: CreatePromoInstructionAccounts,
   args: CreatePromoInstructionArgs,
-  programId = new web3.PublicKey('FWup1J8CtHmrKuiN7HCBCPfcjFZaUCMEkCW8XXK3TLpU')
+  programId = new web3.PublicKey('2voaAEWrDYbrP5wPgm3K3QdPGzvstAC1b8QuGaPRSg3U')
 ) {
   const [data] = createPromoStruct.serialize({
     instructionDiscriminator: createPromoInstructionDiscriminator,

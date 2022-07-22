@@ -24,9 +24,11 @@ export const HomeView: FC = ({}) => {
     const programId = new PublicKey(idl.metadata.address)
     const workspace = useWorkspace()
 
-    console.log(
-        workspace.program.account.merchant.all().then((arr) => console.log(arr))
-    )
+    console.log("programid", workspace.program.programId.toString())
+
+    // console.log(
+    //     workspace.program.account.merchant.all().then((arr) => console.log(arr))
+    // )
 
     useEffect(() => {
         if (wallet.publicKey) {
