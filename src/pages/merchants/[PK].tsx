@@ -11,9 +11,9 @@ export default function Promo() {
     const { PK } = router.query
     const workspace = useWorkspace()
 
-    const merchant =
-        new PublicKey(PK) ||
-        new PublicKey("HexFnfwS4Rp8abu2Y4EnT44NeQf7KFdVdEhYNV2EPvbs") // placeholder for vercel
+    const merchant = new PublicKey(
+        PK || "HexFnfwS4Rp8abu2Y4EnT44NeQf7KFdVdEhYNV2EPvbs"
+    ) // placeholder for vercel
 
     const [accounts, setAccounts] = useState(null)
 
