@@ -49,11 +49,13 @@ export const DisplayPromo: FC<PromoProps> = (props) => {
                     >
                         Mint Promo
                     </button>
-                    <Modal
-                        data={modalData}
-                        open={isOpen}
-                        onClose={() => setIsOpen(false)}
-                    />
+                    {isOpen && (
+                        <Modal
+                            data={modalData}
+                            open={isOpen}
+                            onClose={() => setIsOpen(false)}
+                        />
+                    )}
                 </div>
             )}
         </div>
