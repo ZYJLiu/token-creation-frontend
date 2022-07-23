@@ -11,7 +11,7 @@ export default function Promo() {
     const { PK } = router.query
     const workspace = useWorkspace()
 
-    const merchant = new PublicKey(PK)
+    const merchant = new PublicKey(PK) || null
 
     const [accounts, setAccounts] = useState(null)
 
