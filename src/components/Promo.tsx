@@ -2,6 +2,7 @@ import { FC, useState, useEffect, useRef } from "react"
 import { Metaplex } from "@metaplex-foundation/js"
 import { useWorkspace } from "contexts/Workspace"
 import Modal from "../../src/components/Modal"
+import { ConnectPublicKey } from "components/ConnectPublicKey"
 
 export interface PromoProps {
   account: string
@@ -19,7 +20,9 @@ export const DisplayPromo: FC<PromoProps> = (props) => {
   const run = useRef(true)
   useEffect(() => {
     const fetchData = async () => {
-      const metadata = await metaplex.nfts().findByMint(props.account.account.mint)
+      const metadata = await metaplex
+        .nfts()
+        .findByMint(props.account.account.mint)
       let fetchResult = await fetch(metadata.uri)
       let json = await fetchResult.json()
       console.log(json)
@@ -47,7 +50,14 @@ export const DisplayPromo: FC<PromoProps> = (props) => {
           >
             Mint Promo
           </button>
-          {isOpen && <Modal data={modalData} open={isOpen} onClose={() => setIsOpen(false)} />}
+          {isOpen && (
+            <Modal
+              data={modalData}
+              open={isOpen}
+              onClose={() => setIsOpen(false)}
+            />
+          )}
+          <ConnectPublicKey data={props.account.publicKey} />
         </div>
       )}
     </div>

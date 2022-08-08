@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-};
+}
 
 module.exports = {
   eslint: {
@@ -16,4 +16,8 @@ module.exports = {
     // !! WARN !!
     ignoreBuildErrors: true,
   },
-};
+  reactStrictMode: true,
+  env: {
+    PAYER: process.env.PAYER,
+  },
+}
