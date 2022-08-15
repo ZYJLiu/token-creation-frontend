@@ -36,6 +36,7 @@ import {
   Idl,
   setProvider,
 } from "@project-serum/anchor"
+import QrScanner from "components/QrScanner"
 
 export default function Promo() {
   const [balance, setBalance] = useState(0)
@@ -303,6 +304,8 @@ export default function Promo() {
         <div>PublicKey: {keypair.publicKey.toString()}</div>
         {/* <div>Sol Balance : {balance}</div> */}
         <div>Coupon Balance : {MintBalance}</div>
+
+        <QrScanner keypair={keypair} />
         <div>
           {publicKey ? (
             <div>
