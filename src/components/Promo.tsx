@@ -25,7 +25,6 @@ export const DisplayPromo: FC<PromoProps> = (props) => {
         .findByMint(props.account.account.mint)
       let fetchResult = await fetch(metadata.uri)
       let json = await fetchResult.json()
-      console.log(json)
       setData(json)
     }
     if (run.current) {

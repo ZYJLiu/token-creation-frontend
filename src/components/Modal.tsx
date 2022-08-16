@@ -112,8 +112,7 @@ export default function Modal({ open, data, onClose }) {
           finality: "confirmed",
         })
         setConfirmed(true)
-        // router.push("/confirmedNft")
-        // console.log("confirmed");
+
       } catch (e) {
         if (e instanceof FindReferenceError) {
           // No transaction found yet, ignore this error

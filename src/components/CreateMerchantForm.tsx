@@ -53,13 +53,11 @@ export const CreateMerchant: FC<Props> = ({ setMerchant }) => {
 
         const imageUrl = await metaplex.storage().upload(file)
         setImageUrl(imageUrl)
-        console.log(imageUrl)
     }
 
     useEffect(() => {
         if (wallet && wallet.connected) {
             async function connectProvider() {
-                console.log(wallet)
                 await wallet.connect()
                 const provider = wallet.wallet.adapter
                 await provider.connect()

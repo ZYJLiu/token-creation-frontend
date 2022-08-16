@@ -65,7 +65,6 @@ export default function Promo() {
 
   const router = useRouter()
   const { key, data } = router.query
-  console.log(data)
 
   function generateKeypair() {
     let seed = []

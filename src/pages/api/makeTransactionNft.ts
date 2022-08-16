@@ -66,7 +66,6 @@ async function post(
             res.status(400).json({ error: "No reference provided" })
             return
         }
-        console.log(reference)
 
         // We pass the buyer's public key in JSON body
         const { account } = req.body as MakeTransactionInputData
@@ -76,12 +75,6 @@ async function post(
             return
         }
 
-        // const { wallet } = req.query
-        // if (!wallet) {
-        //     console.log("Returning 400: no wallet")
-        //     res.status(400).json({ error: "No walet provided" })
-        //     return
-        // }
 
         const { promo } = req.query
         if (!promo) {
@@ -90,8 +83,6 @@ async function post(
             return
         }
 
-        // const count = index as string
-        // const publicKey = new PublicKey(wallet)
 
         const buyerPublicKey = new PublicKey(account)
 

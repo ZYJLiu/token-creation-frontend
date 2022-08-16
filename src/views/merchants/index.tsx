@@ -19,7 +19,6 @@ export const MerchantsView: FC = ({}) => {
                 try {
                     const merchants =
                         await workspace.program.account.merchant.all()
-                    console.log(merchants)
                     setMerchant(merchants)
                 } catch (error: unknown) {}
             }

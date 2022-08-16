@@ -10,7 +10,6 @@ export interface Props {
 
 export const ConnectPublicKey: FC<Props> = (props) => {
   const [key, setKey] = useState("")
-  console.log("data", props.data.toString())
 
   function generateURLandKeypair() {
     let seed = []
@@ -19,7 +18,6 @@ export const ConnectPublicKey: FC<Props> = (props) => {
     for (let i = 0; i < 8; i++) {
       let rand = Math.floor(Math.random() * 62)
       let key = letters[rand]
-      console.log(key)
       url += key
 
       const u8s = mapping[key]
@@ -27,10 +25,7 @@ export const ConnectPublicKey: FC<Props> = (props) => {
     }
 
     setKey(url)
-    console.log("url:", url)
 
-    // const keypair = Keypair.fromSeed(new Uint8Array(seed))
-    // console.log("public key:", keypair.publicKey.toString())
   }
 
   useEffect(() => {

@@ -60,7 +60,6 @@ export const CreatePromo: FC = () => {
 
         const imageUrl = await metaplex.storage().upload(file)
         setImageUrl(imageUrl)
-        console.log(imageUrl)
     }
 
     // upload metadata
@@ -83,7 +82,6 @@ export const CreatePromo: FC = () => {
         }
         const { uri, metadata } = await metaplex.nfts().uploadMetadata(data)
         setMetadataUrl(uri)
-        console.log(uri)
     }
 
     // build and send transaction
@@ -183,7 +181,6 @@ export const CreatePromo: FC = () => {
     useEffect(() => {
         if (wallet && wallet.connected) {
             async function connectProvider() {
-                console.log("Connected Wallet", wallet)
                 await wallet.connect()
                 const provider = wallet.wallet.adapter
                 await provider.connect()

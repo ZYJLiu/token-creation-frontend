@@ -10,7 +10,6 @@ import { CreateMerchant } from "components/CreateMerchantForm"
 import idl from "../../../programs/coupons/token_rewards_coupons.json"
 
 import useUserSOLBalanceStore from "../../stores/useUserSOLBalanceStore"
-import { useWorkspace } from "contexts/Workspace"
 
 export const HomeView: FC = ({}) => {
     const [merchant, setMerchant] = useState(null)
@@ -22,13 +21,6 @@ export const HomeView: FC = ({}) => {
     const { getUserSOLBalance } = useUserSOLBalanceStore()
 
     const programId = new PublicKey(idl.metadata.address)
-    const workspace = useWorkspace()
-
-    console.log("programid", workspace.program.programId.toString())
-
-    // console.log(
-    //     workspace.program.account.merchant.all().then((arr) => console.log(arr))
-    // )
 
     useEffect(() => {
         if (wallet.publicKey) {
@@ -46,7 +38,6 @@ export const HomeView: FC = ({}) => {
                         merchant
                     )
                     setMerchant(merchantInfo)
-                    console.log("merchantinfo", merchantInfo)
                 } catch (error: unknown) {}
             }
 
