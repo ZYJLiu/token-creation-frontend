@@ -9,6 +9,7 @@ export interface PromoProps {
 }
 
 export const DisplayPromo: FC<PromoProps> = (props) => {
+  console.log(props)
   const [data, setData] = useState(null)
   const [modalData, setModalData] = useState(null)
   const [isOpen, setIsOpen] = useState(false)

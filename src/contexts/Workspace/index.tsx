@@ -5,8 +5,8 @@ import {
   Idl,
   setProvider,
 } from "@project-serum/anchor"
-import idl from "./idl.json"
-import { IDL, TokenRewardsCoupons } from "./token_rewards_coupons"
+import idl from "./token_rewards.json"
+import { IDL, TokenRewards } from "./token_rewards_coupons"
 import { Connection, PublicKey } from "@solana/web3.js"
 import MockWallet from "./MockWallet"
 
@@ -16,7 +16,7 @@ const programId = new PublicKey(idl.metadata.address)
 interface WorkSpace {
   connection?: Connection
   provider?: AnchorProvider
-  program?: Program<TokenRewardsCoupons>
+  program?: Program<TokenRewards>
 }
 
 const WorkspaceProvider = ({ children }: any) => {
@@ -25,10 +25,7 @@ const WorkspaceProvider = ({ children }: any) => {
   const provider = new AnchorProvider(connection, MockWallet, {})
 
   setProvider(provider)
-  const program = new Program(
-    IDL as Idl,
-    programId
-  ) as unknown as Program<TokenRewardsCoupons>
+  const program = new Program(IDL as Idl, programId) as Program<TokenRewards>
   const workspace = {
     connection,
     provider,

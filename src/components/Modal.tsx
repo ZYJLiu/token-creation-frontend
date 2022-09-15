@@ -50,6 +50,7 @@ const OVERLAY_STYLES = {
 
 // modal to display attributes
 export default function Modal({ open, data, onClose }) {
+  // console.log(data.toString())
   if (!open) return null
 
   const router = useRouter()
@@ -74,7 +75,9 @@ export default function Modal({ open, data, onClose }) {
   searchParams.append("promo", data.toString())
 
   const [size, setSize] = useState(() =>
-    typeof window === "undefined" ? 400 : Math.min(window.screen.availWidth - 10, 512)
+    typeof window === "undefined"
+      ? 400
+      : Math.min(window.screen.availWidth - 10, 512)
   )
 
   useEffect(() => {
@@ -88,7 +91,9 @@ export default function Modal({ open, data, onClose }) {
 
   useEffect(() => {
     const { location } = window
-    const apiUrl = `${location.protocol}//${location.host}/api/makeTransactionNft?${searchParams.toString()}`
+    const apiUrl = `${location.protocol}//${
+      location.host
+    }/api/makeTransactionNft?${searchParams.toString()}`
     const urlParams: TransactionRequestURLFields = {
       link: new URL(apiUrl), // testing placeholder
       label: "Test",
@@ -112,7 +117,6 @@ export default function Modal({ open, data, onClose }) {
           finality: "confirmed",
         })
         setConfirmed(true)
-
       } catch (e) {
         if (e instanceof FindReferenceError) {
           // No transaction found yet, ignore this error
