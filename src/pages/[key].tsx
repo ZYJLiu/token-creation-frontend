@@ -25,10 +25,8 @@ import { useWallet, useConnection } from "@solana/wallet-adapter-react"
 import styles from "../styles/Home.module.css"
 import { mapping } from "../lib/mapping"
 import base58 from "bs58"
-import {
-  IDL,
-  TokenRewardsCoupons,
-} from "../contexts/Workspace/token_rewards_coupons"
+import idl from "../contexts/Workspace/token_rewards.json"
+import { IDL, TokenRewards } from "../contexts/Workspace/token_rewards_coupons"
 import MockWallet from "../contexts/Workspace/MockWallet"
 import {
   Program,
@@ -46,15 +44,13 @@ export default function Promo() {
   const [confirm, setConfirm] = useState(null)
   const { publicKey, sendTransaction } = useWallet()
   const connection = useConnection()
-  const programId = new PublicKey(
-    "2voaAEWrDYbrP5wPgm3K3QdPGzvstAC1b8QuGaPRSg3U"
-  )
+  const programId = new PublicKey(idl.metadata.address)
   const provider = new AnchorProvider(connection.connection, MockWallet, {})
   setProvider(provider)
   const program = new Program(
     IDL as Idl,
     programId
-  ) as unknown as Program<TokenRewardsCoupons>
+  ) as unknown as Program<TokenRewards>
 
   const payerPrivateKey = process.env.NEXT_PUBLIC_PAYER as string
   const payer = Keypair.fromSecretKey(base58.decode(payerPrivateKey))
@@ -97,15 +93,12 @@ export default function Promo() {
           programId
         )
 
-        const receiverMintAddress = await getAssociatedTokenAddress(
+        const tokenAddress = await getAssociatedTokenAddress(
           mint,
           keypair.publicKey
         )
 
-        const account = await getAccount(
-          connection.connection,
-          receiverMintAddress
-        )
+        const account = await getAccount(connection.connection, tokenAddress)
         setMintBalance(Number(account.amount))
       } catch {}
     }
@@ -150,14 +143,14 @@ export default function Promo() {
       programId
     )
 
-    const receiverMintAddress = await getAssociatedTokenAddress(
+    const tokenAddress = await getAssociatedTokenAddress(
       mint,
       keypair.publicKey
     )
 
     const createAccountInstruction = createAssociatedTokenAccountInstruction(
       payer.publicKey,
-      receiverMintAddress,
+      tokenAddress,
       keypair.publicKey,
       mint,
       TOKEN_PROGRAM_ID,
@@ -171,7 +164,7 @@ export default function Promo() {
     try {
       buyer = await getAccount(
         connection.connection,
-        receiverMintAddress,
+        tokenAddress,
         "confirmed",
         TOKEN_PROGRAM_ID
       )
@@ -189,16 +182,15 @@ export default function Promo() {
       }
     }
 
-    const mintInstruction = await program.methods
-      .mintNft()
+    const instruction = await program.methods
+      .mintPromo()
       .accounts({
         promo: promo,
         promoMint: mint,
-        tokenProgram: TOKEN_PROGRAM_ID,
-        customerNft: receiverMintAddress,
+        // tokenProgram: TOKEN_PROGRAM_ID,
+        tokenAccount: tokenAddress,
         user: keypair.publicKey,
       })
-      .signers([keypair, payer])
       .instruction()
 
     // add a bit extra
@@ -208,7 +200,7 @@ export default function Promo() {
     //   lamports: LAMPORTS_PER_SOL * 0.000204,
     // })
 
-    transaction.add(mintInstruction)
+    transaction.add(instruction)
     const transactionSignature = await sendAndConfirmTransaction(
       connection.connection,
       transaction,
@@ -234,7 +226,7 @@ export default function Promo() {
       programId
     )
 
-    const receiverMintAddress = await getAssociatedTokenAddress(mint, publicKey)
+    const tokenAddress = await getAssociatedTokenAddress(mint, publicKey)
 
     const senderMintAddress = await getAssociatedTokenAddress(
       mint,
@@ -243,7 +235,7 @@ export default function Promo() {
 
     const createAccountInstruction = createAssociatedTokenAccountInstruction(
       payer.publicKey,
-      receiverMintAddress,
+      tokenAddress,
       publicKey,
       mint,
       TOKEN_PROGRAM_ID,
@@ -257,7 +249,7 @@ export default function Promo() {
     try {
       buyer = await getAccount(
         connection.connection,
-        receiverMintAddress,
+        tokenAddress,
         "confirmed",
         TOKEN_PROGRAM_ID
       )
@@ -276,7 +268,7 @@ export default function Promo() {
 
     const sendMintInstruction = createTransferInstruction(
       senderMintAddress, // source
-      receiverMintAddress, // dest
+      tokenAddress, // dest
       keypair.publicKey,
       1,
       [],

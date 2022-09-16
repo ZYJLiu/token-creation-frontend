@@ -19,7 +19,7 @@ export default function Promo() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const accounts = await workspace.program?.account.promo.all([
+      const accounts = await workspace.program?.account.promoState.all([
         {
           memcmp: {
             offset: 8,
@@ -28,6 +28,7 @@ export default function Promo() {
         },
       ])
       setAccounts(accounts)
+      // console.log(accounts)
     }
     fetchData()
   }, [PK])
