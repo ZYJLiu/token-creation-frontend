@@ -1,5 +1,5 @@
 import { useRouter, withRouter } from "next/router"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import {
   Keypair,
   Connection,
@@ -36,17 +36,33 @@ import {
 } from "@project-serum/anchor"
 import QrScanner from "components/QrScanner"
 
+import {
+  Metaplex,
+  walletAdapterIdentity,
+  bundlrStorage,
+  MetaplexFile,
+  useMetaplexFileFromBrowser,
+  findMetadataPda,
+} from "@metaplex-foundation/js"
+
 export default function Promo() {
   const [balance, setBalance] = useState(0)
   const [MintBalance, setMintBalance] = useState(0)
+  const [nftData, setNftData] = useState(0)
   const [txSig, setTxSig] = useState("")
   const [keypair, setKeypair] = useState<Keypair>(new Keypair())
   const [confirm, setConfirm] = useState(null)
   const { publicKey, sendTransaction } = useWallet()
-  const connection = useConnection()
+  const walletAdapter = useWallet()
+  const { connection } = useConnection()
   const programId = new PublicKey(idl.metadata.address)
-  const provider = new AnchorProvider(connection.connection, MockWallet, {})
+  const provider = new AnchorProvider(connection, MockWallet, {})
   setProvider(provider)
+
+  const metaplex = useMemo(() => {
+    return Metaplex.make(connection).use(walletAdapterIdentity(walletAdapter))
+  }, [connection, walletAdapter])
+
   const program = new Program(
     IDL as Idl,
     programId
@@ -82,8 +98,7 @@ export default function Promo() {
   useEffect(() => {
     const getBalance = async () => {
       const balance =
-        (await connection.connection.getBalance(keypair.publicKey)) /
-        LAMPORTS_PER_SOL
+        (await connection.getBalance(keypair.publicKey)) / LAMPORTS_PER_SOL
       setBalance(balance)
 
       try {
@@ -98,8 +113,13 @@ export default function Promo() {
           keypair.publicKey
         )
 
-        const account = await getAccount(connection.connection, tokenAddress)
+        const account = await getAccount(connection, tokenAddress)
         setMintBalance(Number(account.amount))
+
+        const nft = await metaplex.nfts().findByMint(mint)
+        let fetchResult = await fetch(nft.uri)
+        let json = await fetchResult.json()
+        setNftData(json)
       } catch {}
     }
     getBalance()
@@ -124,15 +144,10 @@ export default function Promo() {
     })
 
     transaction.add(sendSolInstruction)
-    const transactionSignature = await sendTransaction(
-      transaction,
-      connection.connection
-    )
+    const transactionSignature = await sendTransaction(transaction, connection)
 
     setTxSig(transactionSignature)
-    const confirm = await connection.connection.confirmTransaction(
-      transactionSignature
-    )
+    const confirm = await connection.confirmTransaction(transactionSignature)
     setConfirm(confirm)
   }
 
@@ -163,7 +178,7 @@ export default function Promo() {
     let buyer: Account
     try {
       buyer = await getAccount(
-        connection.connection,
+        connection,
         tokenAddress,
         "confirmed",
         TOKEN_PROGRAM_ID
@@ -202,15 +217,13 @@ export default function Promo() {
 
     transaction.add(instruction)
     const transactionSignature = await sendAndConfirmTransaction(
-      connection.connection,
+      connection,
       transaction,
       [payer, keypair]
     )
 
     setTxSig(transactionSignature)
-    const confirm = await connection.connection.confirmTransaction(
-      transactionSignature
-    )
+    const confirm = await connection.confirmTransaction(transactionSignature)
     setConfirm(confirm)
   }
 
@@ -248,7 +261,7 @@ export default function Promo() {
     let buyer: Account
     try {
       buyer = await getAccount(
-        connection.connection,
+        connection,
         tokenAddress,
         "confirmed",
         TOKEN_PROGRAM_ID
@@ -277,15 +290,13 @@ export default function Promo() {
 
     transaction.add(sendMintInstruction)
     const transactionSignature = await sendAndConfirmTransaction(
-      connection.connection,
+      connection,
       transaction,
       [keypair, payer]
     )
 
     setTxSig(transactionSignature)
-    const confirm = await connection.connection.confirmTransaction(
-      transactionSignature
-    )
+    const confirm = await connection.confirmTransaction(transactionSignature)
     setConfirm(confirm)
   }
 
@@ -295,6 +306,8 @@ export default function Promo() {
         <div>PublicKey: {keypair.publicKey.toString()}</div>
         {/* <div>Sol Balance : {balance}</div> */}
         <div>Coupon Balance : {MintBalance}</div>
+        <ul>{nftData.name}</ul>
+        <img className="w-48" src={nftData.image} />
 
         <QrScanner keypair={keypair} />
         <div>
