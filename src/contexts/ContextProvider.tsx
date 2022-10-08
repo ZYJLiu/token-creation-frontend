@@ -10,6 +10,7 @@ import {
   SolletExtensionWalletAdapter,
   SolletWalletAdapter,
   TorusWalletAdapter,
+  BackpackWalletAdapter,
   // LedgerWalletAdapter,
   // SlopeWalletAdapter,
 } from "@solana/wallet-adapter-wallets"
@@ -31,6 +32,7 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
       new SolletWalletAdapter({ network }),
       new SolletExtensionWalletAdapter({ network }),
       new TorusWalletAdapter(),
+      new BackpackWalletAdapter(),
       // new LedgerWalletAdapter(),
       // new SlopeWalletAdapter(),
     ],

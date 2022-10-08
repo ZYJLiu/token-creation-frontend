@@ -100,6 +100,7 @@ export default function Modal({ open, data, onClose }) {
       message: "Test Message",
     }
     const solanaUrl = encodeURL(urlParams)
+    console.log(solanaUrl)
     const qr = createQR(solanaUrl, size, "white")
 
     if (qrRef.current) {
